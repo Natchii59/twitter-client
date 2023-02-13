@@ -8,12 +8,12 @@ function HomeLayout({ children }: React.PropsWithChildren) {
     <div className='container mx-auto h-screen'>
       <div className='flex flex-row justify-center'>
         {/* Left */}
-        <div className='w-65 xs:w-85 xl:w-230 h-screen overflow-y-auto'>
-          <div className='flex flex-col h-screen xl:pr-3 fixed overflow-y-auto w-65 xs:w-85 xl:w-230'>
+        <div className='w-1/6 xs:w-85 xl:w-230 h-screen overflow-y-auto'>
+          <div className='flex flex-col h-screen xl:pr-3 fixed overflow-y-auto w-1/6 xs:w-85 xl:w-230'>
             {/* Logo */}
             <Link
               to='/'
-              className='flex my-3 ml-3 justify-center xl:justify-start'
+              className='flex my-3 xl:ml-3 justify-center xl:justify-start'
             >
               <svg
                 viewBox='0 0 24 24'
@@ -28,7 +28,7 @@ function HomeLayout({ children }: React.PropsWithChildren) {
             {/* /Logo */}
 
             {/* Nav */}
-            <nav className='flex flex-col items-start gap-3 mt-2'>
+            <nav className='flex flex-col xl:items-start items-center gap-3 mt-2'>
               {navLinks.map((link, i) => (
                 <Link
                   key={i}
@@ -42,15 +42,19 @@ function HomeLayout({ children }: React.PropsWithChildren) {
 
               <Link
                 to='/'
-                className='mx-auto w-11 h-11 xl:w-full flex items-center justify-center bg-blue hover:bg-blue/90 py-6 rounded-full text-white font-bold transition-colors mb-10'
+                className='mx-auto w-11 h-11 xl:w-full flex items-center justify-center bg-blue hover:bg-blue/90 p-4 rounded-full text-white font-bold transition-colors mb-10'
               >
-                <svg
-                  fill='currentColor'
-                  viewBox='0 0 24 24'
-                  className='block xl:hidden h-7 w-7'
-                >
-                  <path d='M8.8 7.2H5.6V3.9c0-.4-.3-.8-.8-.8s-.7.4-.7.8v3.3H.8c-.4 0-.8.3-.8.8s.3.8.8.8h3.3v3.3c0 .4.3.8.8.8s.8-.3.8-.8V8.7H9c.4 0 .8-.3.8-.8s-.5-.7-1-.7zm15-4.9v-.1h-.1c-.1 0-9.2 1.2-14.4 11.7-3.8 7.6-3.6 9.9-3.3 9.9.3.1 3.4-6.5 6.7-9.2 5.2-1.1 6.6-3.6 6.6-3.6s-1.5.2-2.1.2c-.8 0-1.4-.2-1.7-.3 1.3-1.2 2.4-1.5 3.5-1.7.9-.2 1.8-.4 3-1.2 2.2-1.6 1.9-5.5 1.8-5.7z'></path>
-                </svg>
+                <div className='flex'>
+                  <svg
+                    fill='currentColor'
+                    viewBox='0 0 24 24'
+                    className='block xl:hidden h-6 w-6'
+                  >
+                    <g>
+                      <path d='M23 3c-6.62-.1-10.38 2.421-13.05 6.03C7.29 12.61 6 17.331 6 22h2c0-1.007.07-2.012.19-3H12c4.1 0 7.48-3.082 7.94-7.054C22.79 10.147 23.17 6.359 23 3zm-7 8h-1.5v2H16c.63-.016 1.2-.08 1.72-.188C16.95 15.24 14.68 17 12 17H8.55c.57-2.512 1.57-4.851 3-6.78 2.16-2.912 5.29-4.911 9.45-5.187C20.95 8.079 19.9 11 16 11zM4 9V6H1V4h3V1h2v3h3v2H6v3H4z'></path>
+                    </g>
+                  </svg>
+                </div>
 
                 <span className='hidden xl:block font-bold text-md'>
                   Tweeter
@@ -60,13 +64,14 @@ function HomeLayout({ children }: React.PropsWithChildren) {
             {/* /Nav */}
 
             {/* UserMenu */}
-            <button className='w-14 xl:w-full mx-auto mt-auto flex justify-between items-center rounded-full hover:bg-gray-50/10 p-3 cursor-pointer transition-colors mb-2'>
+            <button className='xl:w-full mx-auto mt-auto flex justify-between items-center rounded-full hover:bg-gray-50/10 p-3 cursor-pointer transition-colors mb-2'>
               <div className='flex'>
                 <img
                   className='w-10 h-10 rounded-full'
                   src='/default_pfp.jpeg'
                   alt='Profile'
                 />
+
                 <div className='hidden xl:flex flex-col ml-2'>
                   <h1 className='text-gray-800 dark:text-white font-bold text-sm'>
                     John Doe
@@ -100,23 +105,18 @@ function HomeLayout({ children }: React.PropsWithChildren) {
 
         {/* Right */}
         <div className='hidden md:block w-290 lg:w-360 h-screen'>
-          <div className='flex flex-col fixed overflow-y-auto w-290 lg:w-360 h-screen'>
+          <div className='flex flex-col fixed overflow-y-auto w-290 lg:w-360 h-screen pb-10'>
             {/* Search */}
             <div className='relative m-1'>
               <div className='absolute text-zinc-500 flex items-center pl-4 h-full cursor-pointer'>
                 <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  className='icon icon-tabler icon-tabler-mail'
-                  width='18'
-                  height='18'
                   viewBox='0 0 24 24'
-                  strokeWidth='1.5'
-                  stroke='currentColor'
-                  fill='none'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
+                  fill='currentColor'
+                  className='w-4.5 h-4.5'
                 >
-                  <path d='M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z'></path>
+                  <g>
+                    <path d='M10.25 3.75c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5c1.795 0 3.419-.726 4.596-1.904 1.178-1.177 1.904-2.801 1.904-4.596 0-3.59-2.91-6.5-6.5-6.5zm-8.5 6.5c0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.986-.682 3.815-1.824 5.262l4.781 4.781-1.414 1.414-4.781-4.781c-1.447 1.142-3.276 1.824-5.262 1.824-4.694 0-8.5-3.806-8.5-8.5z'></path>
+                  </g>
                 </svg>
               </div>
 
@@ -152,7 +152,7 @@ function HomeLayout({ children }: React.PropsWithChildren) {
             {/* /What's happening */}
 
             {/* Who to follow */}
-            <div className='bg-zinc-800 rounded-2xl m-2'>
+            <div className='bg-zinc-800 rounded-2xl m-1'>
               <h1 className='text-white text-xl font-bold p-3'>Suggestions</h1>
 
               {/* Twitter Account */}

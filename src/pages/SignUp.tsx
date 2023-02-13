@@ -361,7 +361,7 @@ function SignUp() {
 
         <button
           type='submit'
-          className='w-full py-3 text-lg font-semibold bg-blue-500 rounded-full mt-6 mb-2'
+          className='w-full py-3 text-lg font-semibold bg-blue rounded-full mt-6 mb-2'
         >
           S'inscrire
         </button>

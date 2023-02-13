@@ -10,7 +10,11 @@ module.exports = {
       xl: '1280px'
     },
     extend: {
+      animation: {
+        'spin-fast': 'spin 0.7s linear infinite'
+      },
       width: {
+        4.5: '1.125rem',
         65: '65px',
         85: '85px',
         230: '230px',
@@ -18,8 +22,14 @@ module.exports = {
         360: '360px',
         610: '610px'
       },
+      height: {
+        4.5: '1.125rem'
+      },
       colors: {
         blue: '#1d9bf0'
+      },
+      fontSize: {
+        13: ['0.8125rem', '1.125rem']
       }
     }
   },

@@ -100,7 +100,7 @@ function SignIn() {
         </div>
 
         <button
-          className='w-full bg-blue-500 rounded-full py-3 text-xl font-semibold mb-4 mt-8'
+          className='w-full bg-blue rounded-full py-3 text-xl font-semibold mb-4 mt-8'
           type='submit'
           aria-label='Sign in'
           disabled={isLoading}

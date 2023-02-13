@@ -35,7 +35,7 @@ function InputForm({
               ? 'border-red-500 focus:border-red-500'
               : success
               ? 'border-green-500 focus:border-green-500'
-              : 'border-zinc-400 focus:border-blue-500'
+              : 'border-zinc-400 focus:border-blue'
           } ${(loading || rest.type === 'password') && 'pr-12'} ${
             rest.maxLength && 'pr-20'
           }`}
@@ -49,7 +49,7 @@ function InputForm({
               ? 'text-red-500'
               : success
               ? 'text-green-500'
-              : 'peer-focus:text-blue-500 text-gray-400'
+              : 'peer-focus:text-blue text-gray-400'
           }`}
         >
           {label}
@@ -62,7 +62,7 @@ function InputForm({
           >
             <svg
               aria-hidden='true'
-              className='w-6 h-6 text-gray-400 animate-spin fill-blue-500'
+              className='w-6 h-6 text-gray-400 animate-spin fill-blue'
               viewBox='0 0 100 101'
               fill='none'
               xmlns='http://www.w3.org/2000/svg'
