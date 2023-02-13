@@ -1,6 +1,8 @@
 import { apiSlice } from '../api/apiSlice'
 import {
   AuthenticateOutput,
+  CreateTweetInput,
+  CreateTweetOutput,
   LoginInput,
   LoginOutput,
   SignUpInput,
@@ -77,9 +79,36 @@ export const authApiSlice = apiSlice.injectEndpoints({
           }
         }
       })
+    }),
+    createTweet: builder.mutation<CreateTweetOutput, CreateTweetInput>({
+      query: payload => ({
+        url: '',
+        body: {
+          query: `
+            mutation($input: CreateTweetInput!) {
+              CreateTweet(input: $input) {
+                id
+                text
+                createdAt
+                user {
+                  id
+                  username
+                }
+              }
+            }
+          `,
+          variables: {
+            input: payload
+          }
+        }
+      })
     })
   })
 })
 
-export const { useLoginMutation, useAuthenticateQuery, useSignupMutation } =
-  authApiSlice
+export const {
+  useLoginMutation,
+  useAuthenticateQuery,
+  useSignupMutation,
+  useCreateTweetMutation
+} = authApiSlice

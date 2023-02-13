@@ -2,8 +2,12 @@ import { FaEllipsisH, FaTwitter } from 'react-icons/fa'
 
 import { navLinks } from '../lib/datas'
 import { Link } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { selectUser } from '../stores/authSlice'
 
 function HomeLayout({ children }: React.PropsWithChildren) {
+  const user = useSelector(selectUser)
+
   return (
     <div className='container mx-auto h-screen'>
       <div className='flex flex-row justify-center'>
@@ -72,11 +76,11 @@ function HomeLayout({ children }: React.PropsWithChildren) {
                   alt='Profile'
                 />
 
-                <div className='hidden xl:flex flex-col ml-2'>
+                <div className='hidden xl:flex flex-col items-start ml-2'>
                   <h1 className='text-gray-800 dark:text-white font-bold text-sm'>
-                    John Doe
+                    {user?.name}
                   </h1>
-                  <p className='text-gray-400 text-sm'>@johndoe</p>
+                  <p className='text-gray-400 text-sm'>@{user?.username}</p>
                 </div>
               </div>
 

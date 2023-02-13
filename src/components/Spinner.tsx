@@ -1,20 +1,24 @@
-function Spinner() {
+interface SpinnerProps {
+  size: number
+}
+
+function Spinner({ size }: SpinnerProps) {
   return (
-    <svg className='w-8 h-8 animate-spin-fast'>
+    <svg className='animate-spin-fast' width={size} height={size}>
       <circle
-        cx='16'
-        cy='16'
+        cx={size / 2}
+        cy={size / 2}
         fill='none'
-        r='14'
-        stroke-width='4'
+        r={size / 2 - 2}
+        strokeWidth={size / 10}
         className='stroke-zinc-700'
       ></circle>
       <circle
-        cx='16'
-        cy='16'
+        cx={size / 2}
+        cy={size / 2}
         fill='none'
-        r='14'
-        strokeWidth='4'
+        r={size / 2 - 2}
+        strokeWidth={size / 10}
         strokeDasharray={80}
         strokeDashoffset={60}
         className='stroke-blue'

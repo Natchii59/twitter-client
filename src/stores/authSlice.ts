@@ -1,12 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { RootState } from '.'
-
-interface User {
-  id: string
-  username: string
-  email: string
-  createdAt: Date
-}
+import { User } from '../utils/types'
 
 export interface AuthState {
   user: User | null

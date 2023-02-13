@@ -23,7 +23,19 @@ module.exports = {
         610: '610px'
       },
       height: {
-        4.5: '1.125rem'
+        4.5: '1.125rem',
+        'tweet-1': '32px',
+        'tweet-2': '64px',
+        'tweet-3': '96px',
+        'tweet-4': '128px',
+        'tweet-5': '160px',
+        'tweet-6': '192px',
+        'tweet-7': '224px',
+        'tweet-8': '256px',
+        'tweet-9': '288px',
+        'tweet-10': '320px',
+        'tweet-11': '352px',
+        'tweet-12': '384px'
       },
       colors: {
         blue: '#1d9bf0'

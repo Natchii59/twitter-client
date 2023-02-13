@@ -92,3 +92,14 @@ export interface FindAllTweetOutput {
     FindAllTweet: Tweet[]
   }
 }
+
+export interface CreateTweetInput {
+  text: string
+}
+
+export interface CreateTweetOutput {
+  errors: ErrorOutput[] | null
+  data: {
+    CreateTweet: Tweet
+  }
+}
