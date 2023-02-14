@@ -3,7 +3,11 @@ import { useCreateTweetMutation } from '../stores/authApiSlice'
 import { ErrorMessage } from '../utils/types'
 import Spinner from './Spinner'
 
-function PostTweet() {
+interface PostTweetProps {
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+function PostTweet({ setRefresh }: PostTweetProps) {
   const [tweet, setTweet] = useState<string>('')
   const [tweetValid, setTweetValid] = useState<boolean>(false)
   const [errors, setErrors] = useState<ErrorMessage[]>([])
@@ -33,6 +37,7 @@ function PostTweet() {
     } else if (data) {
       setTweet('')
       setErrors([])
+      setRefresh(true)
     }
   }
 
@@ -139,7 +144,7 @@ function PostTweet() {
               <button
                 type='submit'
                 disabled={!tweetValid}
-                className='bg-blue hover:bg-blue/90 active:bg-blue/80 disabled:opacity-50 disabled:hover:bg-blue disabled:active:bg-blue text-white rounded-full py-1 px-4 font-bold text-sm'
+                className='bg-blue hover:bg-blue/90 active:bg-blue/80 disabled:opacity-50 disabled:hover:bg-blue disabled:active:bg-blue text-white rounded-full py-2 px-4 font-bold text-sm'
               >
                 Tweeter
               </button>

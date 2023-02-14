@@ -16,6 +16,9 @@ export interface User {
   name: string
   birthday: Date
   createdAt: Date
+  updatedAt: Date
+  following: User[]
+  followers: User[]
 }
 
 export interface LoginOutput {
@@ -83,13 +86,17 @@ export interface Tweet {
   id: string
   text: string
   createdAt: Date
+  likes: User[]
   user: User
 }
 
-export interface FindAllTweetOutput {
+export interface PaginationTweet {
   errors: ErrorOutput[] | null
   data: {
-    FindAllTweet: Tweet[]
+    PaginationTweet: {
+      totalCount: number
+      nodes: Tweet[]
+    }
   }
 }
 
@@ -101,5 +108,23 @@ export interface CreateTweetOutput {
   errors: ErrorOutput[] | null
   data: {
     CreateTweet: Tweet
+  }
+}
+
+export interface LikeTweetInput {
+  id: string
+}
+
+export interface LikeTweetOutput {
+  errors: ErrorOutput[] | null
+  data: {
+    LikeTweet: Tweet
+  }
+}
+
+export interface FindOneUserOutput {
+  errors: ErrorOutput[] | null
+  data: {
+    FindOneUser: User
   }
 }

@@ -1,9 +1,10 @@
 import { Route, Routes } from 'react-router-dom'
 import SignIn from './pages/SignIn'
-import AuthenticatedRoute from './components/RequireAuth'
 import Home from './pages/Home'
 import RequireAuth from './components/RequireAuth'
 import SignUp from './pages/SignUp'
+import Layout from './components/Layout'
+import Profile from './pages/Profile'
 
 function App() {
   return (
@@ -12,7 +13,10 @@ function App() {
       <Route path='sign-up' element={<SignUp />} />
 
       <Route path='/' element={<RequireAuth />}>
-        <Route index element={<Home />} />
+        <Route path='/' element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path='profile/:username' element={<Profile />} />
+        </Route>
       </Route>
     </Routes>
   )

@@ -1,11 +1,9 @@
-import { FaEllipsisH, FaTwitter } from 'react-icons/fa'
-
-import { navLinks } from '../lib/datas'
-import { Link } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { selectUser } from '../stores/authSlice'
+import Sidebar from './Sidebar'
 
-function HomeLayout({ children }: React.PropsWithChildren) {
+function Layout() {
   const user = useSelector(selectUser)
 
   return (
@@ -32,39 +30,7 @@ function HomeLayout({ children }: React.PropsWithChildren) {
             {/* /Logo */}
 
             {/* Nav */}
-            <nav className='flex flex-col xl:items-start items-center gap-3 mt-2'>
-              {navLinks.map((link, i) => (
-                <Link
-                  key={i}
-                  to={link.path}
-                  className='flex items-center justify-center xl:justify-start gap-4 px-3 py-2 rounded-full text-zinc-200 hover:bg-gray-50/10 transition-colors'
-                >
-                  {link.icon}
-                  <span className='hidden xl:block text-xl'>{link.name}</span>
-                </Link>
-              ))}
-
-              <Link
-                to='/'
-                className='mx-auto w-11 h-11 xl:w-full flex items-center justify-center bg-blue hover:bg-blue/90 p-4 rounded-full text-white font-bold transition-colors mb-10'
-              >
-                <div className='flex'>
-                  <svg
-                    fill='currentColor'
-                    viewBox='0 0 24 24'
-                    className='block xl:hidden h-6 w-6'
-                  >
-                    <g>
-                      <path d='M23 3c-6.62-.1-10.38 2.421-13.05 6.03C7.29 12.61 6 17.331 6 22h2c0-1.007.07-2.012.19-3H12c4.1 0 7.48-3.082 7.94-7.054C22.79 10.147 23.17 6.359 23 3zm-7 8h-1.5v2H16c.63-.016 1.2-.08 1.72-.188C16.95 15.24 14.68 17 12 17H8.55c.57-2.512 1.57-4.851 3-6.78 2.16-2.912 5.29-4.911 9.45-5.187C20.95 8.079 19.9 11 16 11zM4 9V6H1V4h3V1h2v3h3v2H6v3H4z'></path>
-                    </g>
-                  </svg>
-                </div>
-
-                <span className='hidden xl:block font-bold text-md'>
-                  Tweeter
-                </span>
-              </Link>
-            </nav>
+            <Sidebar />
             {/* /Nav */}
 
             {/* UserMenu */}
@@ -104,7 +70,9 @@ function HomeLayout({ children }: React.PropsWithChildren) {
         {/* /Left */}
 
         {/* Middle */}
-        <div className='w-full sm:w-610 h-screen sm:mx-6'>{children}</div>
+        <div className='w-full sm:w-610 h-screen sm:mx-6'>
+          <Outlet />
+        </div>
         {/* /Middle */}
 
         {/* Right */}
@@ -244,4 +212,4 @@ function HomeLayout({ children }: React.PropsWithChildren) {
   )
 }
 
-export default HomeLayout
+export default Layout

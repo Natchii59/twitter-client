@@ -3,6 +3,8 @@ import {
   AuthenticateOutput,
   CreateTweetInput,
   CreateTweetOutput,
+  LikeTweetInput,
+  LikeTweetOutput,
   LoginInput,
   LoginOutput,
   SignUpInput,
@@ -102,6 +104,21 @@ export const authApiSlice = apiSlice.injectEndpoints({
           }
         }
       })
+    }),
+    likeTweet: builder.mutation<LikeTweetOutput, LikeTweetInput>({
+      query: payload => ({
+        url: '',
+        body: {
+          query: `
+            mutation($id: ID!) {
+              LikeTweet(id: $id) {
+                id
+              }
+            }
+          `,
+          variables: payload
+        }
+      })
     })
   })
 })
@@ -110,5 +127,6 @@ export const {
   useLoginMutation,
   useAuthenticateQuery,
   useSignupMutation,
-  useCreateTweetMutation
+  useCreateTweetMutation,
+  useLikeTweetMutation
 } = authApiSlice
