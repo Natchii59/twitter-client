@@ -3,6 +3,8 @@ import {
   AuthenticateOutput,
   CreateTweetInput,
   CreateTweetOutput,
+  FollowUserInput,
+  FollowUserOutput,
   LikeTweetInput,
   LikeTweetOutput,
   LoginInput,
@@ -29,6 +31,12 @@ export const authApiSlice = apiSlice.injectEndpoints({
                   name
                   birthday
                   createdAt
+                  followers {
+                    id
+                  }
+                  following {
+                    id
+                  }
                 }
               }
             }
@@ -50,6 +58,12 @@ export const authApiSlice = apiSlice.injectEndpoints({
                 name
                 birthday
                 createdAt
+                followers {
+                  id
+                }
+                following {
+                  id
+                }
               }
             }
           `
@@ -119,6 +133,31 @@ export const authApiSlice = apiSlice.injectEndpoints({
           variables: payload
         }
       })
+    }),
+    followUser: builder.mutation<FollowUserOutput, FollowUserInput>({
+      query: payload => ({
+        url: '',
+        body: {
+          query: `
+            mutation($id: ID!) {
+              FollowUser(id: $id) {
+                id
+                username
+                name
+                createdAt
+                birthday
+                followers {
+                  id
+                }
+                following {
+                  id
+                }
+              }
+            }
+          `,
+          variables: payload
+        }
+      })
     })
   })
 })
@@ -128,5 +167,6 @@ export const {
   useAuthenticateQuery,
   useSignupMutation,
   useCreateTweetMutation,
-  useLikeTweetMutation
+  useLikeTweetMutation,
+  useFollowUserMutation
 } = authApiSlice

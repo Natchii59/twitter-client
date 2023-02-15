@@ -2,9 +2,16 @@ import { Link, Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { selectUser } from '../stores/authSlice'
 import Sidebar from './Sidebar'
+import { useState } from 'react'
 
 function Layout() {
   const user = useSelector(selectUser)
+
+  const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
+
+  const handleUserMenu = () => {
+    setUserMenuOpen(!userMenuOpen)
+  }
 
   return (
     <div className='container mx-auto h-screen'>
@@ -34,36 +41,47 @@ function Layout() {
             {/* /Nav */}
 
             {/* UserMenu */}
-            <button className='xl:w-full mx-auto mt-auto flex justify-between items-center rounded-full hover:bg-gray-50/10 p-3 cursor-pointer transition-colors mb-2'>
-              <div className='flex'>
-                <img
-                  className='w-10 h-10 rounded-full'
-                  src='/default_pfp.jpeg'
-                  alt='Profile'
-                />
+            <div className='xl:w-full mx-auto mt-auto'>
+              {userMenuOpen && (
+                <button className='py-2 px-4 border border-zinc-500 rounded-md text-sm font-semibold'>
+                  Se déconnecter de @{user?.username}
+                </button>
+              )}
 
-                <div className='hidden xl:flex flex-col items-start ml-2'>
-                  <h1 className='text-gray-800 dark:text-white font-bold text-sm'>
-                    {user?.name}
-                  </h1>
-                  <p className='text-gray-400 text-sm'>@{user?.username}</p>
-                </div>
-              </div>
+              <button
+                onClick={handleUserMenu}
+                className='flex justify-between items-center rounded-full hover:bg-gray-50/10 p-3 cursor-pointer transition-colors mb-2'
+              >
+                <div className='flex'>
+                  <img
+                    className='w-10 h-10 rounded-full'
+                    src='/default_pfp.jpeg'
+                    alt='Profile'
+                  />
 
-              <div className='hidden xl:block'>
-                <div className='flex items-center h-full text-white'>
-                  <svg
-                    viewBox='0 0 24 24'
-                    fill='currentColor'
-                    className='h-4 w-4 mr-2'
-                  >
-                    <g>
-                      <path d='M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z'></path>
-                    </g>
-                  </svg>
+                  <div className='hidden xl:flex flex-col items-start ml-2'>
+                    <h1 className='text-zinc-100 font-bold text-sm'>
+                      {user?.name}
+                    </h1>
+                    <p className='text-gray-400 text-sm'>@{user?.username}</p>
+                  </div>
                 </div>
-              </div>
-            </button>
+
+                <div className='hidden xl:block'>
+                  <div className='flex items-center h-full text-white'>
+                    <svg
+                      viewBox='0 0 24 24'
+                      fill='currentColor'
+                      className='h-4 w-4 mr-2'
+                    >
+                      <g>
+                        <path d='M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z'></path>
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+              </button>
+            </div>
             {/* /UserMenu */}
           </div>
         </div>

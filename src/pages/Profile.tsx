@@ -1,10 +1,13 @@
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, useParams } from 'react-router-dom'
-import { selectUser } from '../stores/authSlice'
+import { selectUser, setUser as setUserStore } from '../stores/authSlice'
 import { useEffect, useState } from 'react'
 import { FindOneUserOutput, PaginationTweet, Tweet, User } from '../utils/types'
 import moment from 'moment'
 import TweetComponent from '../components/Tweet'
+import Spinner from '../components/Spinner'
+import { useFollowUserMutation } from '../stores/authApiSlice'
+import { AppDispatch } from '../stores'
 
 function Profile() {
   const { username } = useParams()
@@ -15,7 +18,10 @@ function Profile() {
   const [tweetsCount, setTweetsCount] = useState<number>(0)
 
   const currentUser = useSelector(selectUser)
+  const dispatch = useDispatch<AppDispatch>()
   const isCurrentUser = currentUser?.username === username
+
+  const [follow] = useFollowUserMutation()
 
   useEffect(() => {
     setLoading(true)
@@ -121,6 +127,51 @@ function Profile() {
       })
   }
 
+  const followHandle = async () => {
+    if (!user || !currentUser) return
+
+    const { data, errors } = await follow({ id: user.id }).unwrap()
+
+    if (errors) {
+      console.error(errors)
+      return
+    }
+
+    if (data) {
+      setUser(data.FollowUser)
+
+      if (data.FollowUser.followers.find(f => f.id === currentUser.id)) {
+        dispatch(
+          setUserStore({
+            ...currentUser,
+            following: [...currentUser.following, user]
+          })
+        )
+      } else {
+        dispatch(
+          setUserStore({
+            ...currentUser,
+            following: currentUser.following.filter(f => f.id !== user.id)
+          })
+        )
+      }
+    }
+  }
+
+  if (loading)
+    return (
+      <div className='flex justify-center p-4'>
+        <Spinner size={40} />
+      </div>
+    )
+
+  if (!user)
+    return (
+      <div className='flex justify-center p-4 text-xl font-bold'>
+        L'utilisateur est introuvable
+      </div>
+    )
+
   return (
     <>
       {/* Header */}
@@ -158,8 +209,18 @@ function Profile() {
             <button className='rounded-full px-4 py-1 border border-zinc-600 font-semibold hover:bg-zinc-900'>
               Éditer le profil
             </button>
+          ) : currentUser?.following.find(f => f.id === user?.id) ? (
+            <button
+              onClick={followHandle}
+              className='rounded-full px-4 py-1 bg-zinc-100 text-black font-semibold hover:bg-zinc-100/90 transition-colors'
+            >
+              Abonné
+            </button>
           ) : (
-            <button className='rounded-full px-4 py-1 bg-zinc-100 text-black font-semibold hover:bg-zinc-100/90 transition-colors'>
+            <button
+              onClick={followHandle}
+              className='rounded-full px-4 py-1 bg-zinc-100 text-black font-semibold hover:bg-zinc-100/90 transition-colors'
+            >
               Suivre
             </button>
           )}
@@ -171,6 +232,24 @@ function Profile() {
         </div>
 
         <div className='flex items-center gap-4 px-4 pb-2 text-zinc-500'>
+          {user?.birthday && (
+            <div className='flex items-center gap-1 text-sm'>
+              <svg
+                viewBox='0 0 24 24'
+                fill='currentColor'
+                className='w-4.5 h-4.5'
+              >
+                <g>
+                  <path d='M8 10c0-2.21 1.79-4 4-4v2c-1.1 0-2 .9-2 2H8zm12 1c0 4.27-2.69 8.01-6.44 8.83L15 22H9l1.45-2.17C6.7 19.01 4 15.27 4 11c0-4.84 3.46-9 8-9s8 4.16 8 9zm-8 7c3.19 0 6-3 6-7s-2.81-7-6-7-6 3-6 7 2.81 7 6 7z'></path>
+                </g>
+              </svg>
+
+              <p>
+                Naissance le {moment(user?.birthday).format('DD MMMM YYYY')}
+              </p>
+            </div>
+          )}
+
           <div className='flex items-center gap-1 text-sm'>
             <svg
               viewBox='0 0 24 24'

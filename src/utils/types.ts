@@ -21,6 +21,20 @@ export interface User {
   followers: User[]
 }
 
+export interface Tweet {
+  id: string
+  text: string
+  createdAt: Date
+  likes: User[]
+  user: User
+}
+
+// Login
+export interface LoginInput {
+  email: string
+  password: string
+}
+
 export interface LoginOutput {
   errors: ErrorOutput[] | null
   data: {
@@ -32,11 +46,7 @@ export interface LoginOutput {
   } | null
 }
 
-export interface LoginInput {
-  email: string
-  password: string
-}
-
+// Authenticate
 export interface AuthenticateOutput {
   errors: ErrorOutput[] | null
   data: {
@@ -44,6 +54,7 @@ export interface AuthenticateOutput {
   }
 }
 
+// Refresh Tokens
 export interface RefreshTokensOutput {
   errors: ErrorOutput[] | null
   data: {
@@ -54,15 +65,15 @@ export interface RefreshTokensOutput {
   }
 }
 
-export interface FindOneUserCheckOutput {
+// Find One User
+export interface FindOneUserOutput {
   errors: ErrorOutput[] | null
   data: {
-    FindOneUser: {
-      id: string
-    }
+    FindOneUser: User
   }
 }
 
+// Sign Up
 export interface SignUpInput {
   name: string
   email: string
@@ -82,14 +93,7 @@ export interface SignUpOutput {
   }
 }
 
-export interface Tweet {
-  id: string
-  text: string
-  createdAt: Date
-  likes: User[]
-  user: User
-}
-
+// Pagination Tweet
 export interface PaginationTweet {
   errors: ErrorOutput[] | null
   data: {
@@ -100,6 +104,7 @@ export interface PaginationTweet {
   }
 }
 
+// Create Tweet
 export interface CreateTweetInput {
   text: string
 }
@@ -111,6 +116,7 @@ export interface CreateTweetOutput {
   }
 }
 
+// Like Tweet
 export interface LikeTweetInput {
   id: string
 }
@@ -122,9 +128,14 @@ export interface LikeTweetOutput {
   }
 }
 
-export interface FindOneUserOutput {
+// Follow User
+export interface FollowUserInput {
+  id: string
+}
+
+export interface FollowUserOutput {
   errors: ErrorOutput[] | null
   data: {
-    FindOneUser: User
+    FollowUser: User
   }
 }

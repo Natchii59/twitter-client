@@ -8,7 +8,7 @@ import AuthLayout from '../components/AuthLayout'
 import { AppDispatch } from '../stores'
 import InputForm from '../components/InputForm'
 import SelectForm from '../components/SelectForm'
-import { ErrorMessage, FindOneUserCheckOutput } from '../utils/types'
+import { ErrorMessage, FindOneUserOutput } from '../utils/types'
 import { useSignupMutation } from '../stores/authApiSlice'
 import { setUser } from '../stores/authSlice'
 
@@ -80,7 +80,7 @@ function SignUp() {
       })
     })
 
-    const data = (await res.json()) as FindOneUserCheckOutput
+    const data = (await res.json()) as FindOneUserOutput
 
     setLoadingEmail(false)
 
@@ -136,7 +136,7 @@ function SignUp() {
       })
     })
 
-    const data = (await res.json()) as FindOneUserCheckOutput
+    const data = (await res.json()) as FindOneUserOutput
 
     setLoadingUsername(false)
 
