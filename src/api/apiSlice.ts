@@ -8,7 +8,7 @@ import { ErrorOutput, RefreshTokensOutput } from '../utils/types'
 import { logOut } from '../stores/authSlice'
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:3001/graphql',
+  baseUrl: `${import.meta.env.VITE_APP_API_URL}/graphql`,
   method: 'POST',
   prepareHeaders: headers => {
     headers.append('Content-Type', 'application/json')

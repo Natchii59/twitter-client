@@ -3,12 +3,16 @@ import {
   AuthenticateOutput,
   CreateTweetInput,
   CreateTweetOutput,
+  DeleteTweetInput,
+  DeleteTweetOutput,
   FollowUserInput,
   FollowUserOutput,
   LikeTweetInput,
   LikeTweetOutput,
   LoginInput,
   LoginOutput,
+  RetweetTweetInput,
+  RetweetTweetOutput,
   SignUpInput,
   SignUpOutput
 } from '../utils/types'
@@ -158,6 +162,34 @@ export const authApiSlice = apiSlice.injectEndpoints({
           variables: payload
         }
       })
+    }),
+    retweetTweet: builder.mutation<RetweetTweetOutput, RetweetTweetInput>({
+      query: payload => ({
+        url: '',
+        body: {
+          query: `
+            mutation($id: ID!) {
+              Retweet(id: $id) {
+                id
+              }
+            }
+          `,
+          variables: payload
+        }
+      })
+    }),
+    deleteTweet: builder.mutation<DeleteTweetOutput, DeleteTweetInput>({
+      query: payload => ({
+        url: '',
+        body: {
+          query: `
+            mutation($id: ID!) {
+              DeleteTweet(id: $id)
+            }
+          `,
+          variables: payload
+        }
+      })
     })
   })
 })
@@ -168,5 +200,7 @@ export const {
   useSignupMutation,
   useCreateTweetMutation,
   useLikeTweetMutation,
-  useFollowUserMutation
+  useFollowUserMutation,
+  useRetweetTweetMutation,
+  useDeleteTweetMutation
 } = authApiSlice

@@ -25,8 +25,9 @@ export interface Tweet {
   id: string
   text: string
   createdAt: Date
-  likes: User[]
   user: User
+  likes: User[]
+  retweets: User[]
 }
 
 // Login
@@ -137,5 +138,29 @@ export interface FollowUserOutput {
   errors: ErrorOutput[] | null
   data: {
     FollowUser: User
+  }
+}
+
+// Retweet Tweet
+export interface RetweetTweetInput {
+  id: string
+}
+
+export interface RetweetTweetOutput {
+  errors: ErrorOutput[] | null
+  data: {
+    RetweetTweet: Tweet
+  }
+}
+
+// Delete Tweet
+export interface DeleteTweetInput {
+  id: string
+}
+
+export interface DeleteTweetOutput {
+  errors: ErrorOutput[] | null
+  data: {
+    DeleteTweet: string
   }
 }

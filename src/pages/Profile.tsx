@@ -35,7 +35,7 @@ function Profile() {
   }, [username])
 
   const fetchUser = () => {
-    fetch('http://localhost:3001/graphql', {
+    fetch(`${import.meta.env.VITE_APP_API_URL}/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -77,7 +77,7 @@ function Profile() {
   }
 
   const fetchTweets = () => {
-    fetch('http://localhost:3001/graphql', {
+    fetch(`${import.meta.env.VITE_APP_API_URL}/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -93,6 +93,10 @@ function Profile() {
                 createdAt
                 likes {
                   id
+                }
+                retweets {
+                  id
+                  username
                 }
                 user {
                   id
@@ -175,7 +179,7 @@ function Profile() {
   return (
     <>
       {/* Header */}
-      <div className='flex items-center gap-8 px-4 py-1 sticky top-0 border-x border-zinc-800 bg-black/70'>
+      <div className='flex items-center gap-8 px-4 py-1 sticky top-0 border-x border-zinc-800 bg-black/70 z-50'>
         <Link to='/'>
           <svg viewBox='0 0 24 24' fill='currentColor' className='w-5 h-5'>
             <g>

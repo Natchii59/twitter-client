@@ -1,16 +1,24 @@
-import { Link, Outlet } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { selectUser } from '../stores/authSlice'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { logOut, selectUser } from '../stores/authSlice'
 import Sidebar from './Sidebar'
 import { useState } from 'react'
+import { AppDispatch } from '../stores'
 
 function Layout() {
   const user = useSelector(selectUser)
+  const dispatch = useDispatch<AppDispatch>()
+  const navigate = useNavigate()
 
   const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
 
   const handleUserMenu = () => {
     setUserMenuOpen(!userMenuOpen)
+  }
+
+  const handleLogout = () => {
+    dispatch(logOut())
+    navigate('/sign-in')
   }
 
   return (
@@ -43,14 +51,17 @@ function Layout() {
             {/* UserMenu */}
             <div className='xl:w-full mx-auto mt-auto'>
               {userMenuOpen && (
-                <button className='py-2 px-4 border border-zinc-500 rounded-md text-sm font-semibold'>
-                  Se déconnecter de @{user?.username}
+                <button
+                  onClick={handleLogout}
+                  className='py-2 px-4 border border-zinc-500 rounded-xl text-sm font-semibold w-full text-center mb-2'
+                >
+                  Se déconnecter
                 </button>
               )}
 
               <button
                 onClick={handleUserMenu}
-                className='flex justify-between items-center rounded-full hover:bg-gray-50/10 p-3 cursor-pointer transition-colors mb-2'
+                className='flex justify-between items-center rounded-full hover:bg-gray-50/10 p-3 cursor-pointer transition-colors mb-2 w-full'
               >
                 <div className='flex'>
                   <img

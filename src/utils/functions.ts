@@ -15,3 +15,11 @@ export function getRelativeDate(date: Date): string {
 
   return relative
 }
+
+export function formatNumber(number: number): string {
+  const formatter = Intl.NumberFormat('en', {
+    notation: 'compact',
+    maximumFractionDigits: 1
+  })
+  return formatter.format(number)
+}

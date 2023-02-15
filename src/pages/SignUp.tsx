@@ -58,7 +58,7 @@ function SignUp() {
     const fetchControllerEmailTmp = new AbortController()
     setFetchControllerEmail(fetchControllerEmailTmp)
 
-    const res = await fetch('http://localhost:3001/graphql', {
+    const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/graphql`, {
       signal: fetchControllerEmailTmp.signal,
       method: 'POST',
       headers: {
@@ -114,7 +114,7 @@ function SignUp() {
     const fetchControllerUsernameTmp = new AbortController()
     setFetchControllerUsername(fetchControllerUsernameTmp)
 
-    const res = await fetch('http://localhost:3001/graphql', {
+    const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/graphql`, {
       signal: fetchControllerUsernameTmp.signal,
       method: 'POST',
       headers: {

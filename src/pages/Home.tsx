@@ -14,7 +14,7 @@ function Home() {
 
     setLoading(true)
 
-    fetch('http://localhost:3001/graphql', {
+    fetch(`${import.meta.env.VITE_APP_API_URL}/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -29,6 +29,10 @@ function Home() {
                 createdAt
                 likes {
                   id
+                }
+                retweets {
+                  id
+                  username
                 }
                 user {
                   id
@@ -73,7 +77,7 @@ function Home() {
 
       {/* Tweets */}
       {tweets.map(tweet => (
-        <TweetComponent key={tweet.id} tweet={tweet} />
+        <TweetComponent key={tweet.id} tweet={tweet} setTweets={setTweets} />
       ))}
       {/* /Tweets */}
 
