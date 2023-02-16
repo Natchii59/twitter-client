@@ -164,3 +164,11 @@ export interface DeleteTweetOutput {
     DeleteTweet: string
   }
 }
+
+// Find One Tweet
+export interface FindOneTweetOutput {
+  errors: ErrorOutput[] | null
+  data: {
+    FindOneTweet: Tweet
+  }
+}

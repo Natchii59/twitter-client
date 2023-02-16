@@ -1,10 +1,12 @@
 import { Route, Routes } from 'react-router-dom'
+
 import SignIn from './pages/SignIn'
 import Home from './pages/Home'
 import RequireAuth from './components/RequireAuth'
 import SignUp from './pages/SignUp'
 import Layout from './components/Layout'
 import Profile from './pages/Profile'
+import TweetPage from './pages/Tweet'
 
 function App() {
   return (
@@ -16,6 +18,7 @@ function App() {
         <Route path='/' element={<Layout />}>
           <Route index element={<Home />} />
           <Route path='profile/:username' element={<Profile />} />
+          <Route path='tweet/:id' element={<TweetPage />} />
         </Route>
       </Route>
     </Routes>

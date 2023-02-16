@@ -95,7 +95,10 @@ function TweetComponent({ tweet, setTweets }: TweetProps) {
   }
 
   return (
-    <div className='border-b border-zinc-800 cursor-pointer p-3 pb-0 border-l border-r flex flex-col items-start gap-2'>
+    <Link
+      to={`/tweet/${tweet.id}`}
+      className='border-b border-zinc-800 cursor-pointer p-3 pb-0 border-l border-r flex flex-col items-start gap-2'
+    >
       {retweetUsers.length > 0 && (
         <div className='flex items-center gap-2 text-sm text-zinc-500 pl-7'>
           <svg viewBox='0 0 24 24' fill='currentColor' className='w-4.5 h-4.5'>
@@ -107,6 +110,8 @@ function TweetComponent({ tweet, setTweets }: TweetProps) {
           <span>
             {retweetUsers
               .map(u => (u === user?.username ? 'Vous' : u))
+              .slice(0, 2)
+              .concat(retweetUsers.length > 2 ? 'et d’autres' : [])
               .join(', ')}{' '}
             {retweetUsers.length > 1
               ? 'ont'
@@ -254,7 +259,7 @@ function TweetComponent({ tweet, setTweets }: TweetProps) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 
