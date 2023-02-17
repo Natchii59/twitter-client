@@ -1,6 +1,7 @@
 import { createRef, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import moment from 'moment'
 
 import { FindOneTweetOutput, Tweet } from '../utils/types'
 import { selectUser } from '../stores/authSlice'
@@ -9,9 +10,8 @@ import {
   useLikeTweetMutation,
   useRetweetTweetMutation
 } from '../stores/authApiSlice'
-import { getRelativeDate } from '../utils/functions'
 import Spinner from '../components/Spinner'
-import moment from 'moment'
+import ShareModal from '../components/ShareModal'
 
 function TweetPage() {
   const { id } = useParams()
@@ -26,6 +26,8 @@ function TweetPage() {
   const [retweets, setRetweets] = useState<number>(0)
   const [isRetweeted, setIsRetweeted] = useState<boolean>(false)
   const [retweetUsers, setRetweetUsers] = useState<string[]>([])
+
+  const [isShared, setIsShared] = useState<boolean>(false)
 
   const user = useSelector(selectUser)
 
@@ -167,6 +169,13 @@ function TweetPage() {
     } else if (data) {
       navigate('/')
     }
+  }
+
+  const handleShare = () => {
+    if (!tweet) return
+
+    navigator.clipboard.writeText(`http://localhost:5173/tweet/${tweet.id}`)
+    setIsShared(true)
   }
 
   if (loading)
@@ -353,13 +362,18 @@ function TweetPage() {
           {/* /Likes */}
 
           {/* Share */}
-          <button className='text-zinc-500 hover:text-blue p-2 rounded-full hover:bg-blue/10 active:bg-blue/20 transition-colors'>
+          <button
+            onClick={handleShare}
+            className='text-zinc-500 hover:text-blue p-2 rounded-full hover:bg-blue/10 active:bg-blue/20 transition-colors'
+          >
             <svg viewBox='0 0 24 24' fill='currentColor' className='w-6 h-6'>
               <g>
                 <path d='M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z'></path>
               </g>
             </svg>
           </button>
+
+          <ShareModal isOpen={isShared} setIsOpen={setIsShared} />
           {/* /Share */}
         </div>
 

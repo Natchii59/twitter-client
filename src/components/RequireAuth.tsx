@@ -13,7 +13,9 @@ function RequireAuth() {
   const { data, isLoading } = useAuthenticateQuery()
 
   useEffect(() => {
-    if (!data?.data && data?.errors) {
+    if (isLoading) return
+
+    if (!data?.data.Profile || data?.errors) {
       navigate('/sign-in', { state: { from: location } })
     } else {
       dispatch(setUser(data?.data.Profile))

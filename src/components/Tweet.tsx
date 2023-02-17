@@ -9,7 +9,8 @@ import {
   useLikeTweetMutation,
   useRetweetTweetMutation
 } from '../stores/authApiSlice'
-import { Link, useLocation, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import ShareModal from './ShareModal'
 
 interface TweetProps {
   tweet: Tweet
@@ -19,6 +20,7 @@ interface TweetProps {
 function TweetComponent({ tweet, setTweets }: TweetProps) {
   const location = useLocation()
   const { username } = useParams()
+  const navigate = useNavigate()
 
   const [likes, setLikes] = useState<number>(tweet.likes.length)
   const [isLiked, setIsLiked] = useState<boolean>(false)
@@ -26,6 +28,8 @@ function TweetComponent({ tweet, setTweets }: TweetProps) {
   const [retweets, setRetweets] = useState<number>(tweet.retweets.length)
   const [isRetweeted, setIsRetweeted] = useState<boolean>(false)
   const [retweetUsers, setRetweetUsers] = useState<string[]>([])
+
+  const [isShared, setIsShared] = useState<boolean>(false)
 
   const user = useSelector(selectUser)
 
@@ -57,7 +61,11 @@ function TweetComponent({ tweet, setTweets }: TweetProps) {
     }
   }, [user])
 
-  const handleLike = async () => {
+  const handleLike = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.stopPropagation()
+
     const { data, errors } = await likeTweet({ id: tweet.id }).unwrap()
 
     if (errors) {
@@ -69,7 +77,11 @@ function TweetComponent({ tweet, setTweets }: TweetProps) {
     }
   }
 
-  const handleRetweet = async () => {
+  const handleRetweet = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.stopPropagation()
+
     const { data, errors } = await retweetTweet({ id: tweet.id }).unwrap()
 
     if (errors) {
@@ -81,7 +93,11 @@ function TweetComponent({ tweet, setTweets }: TweetProps) {
     }
   }
 
-  const handleDelete = async () => {
+  const handleDelete = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.stopPropagation()
+
     const { data, errors } = await deleteTweet({ id: tweet.id }).unwrap()
 
     if (errors) {
@@ -94,9 +110,20 @@ function TweetComponent({ tweet, setTweets }: TweetProps) {
     }
   }
 
+  const handleShare = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation()
+
+    navigator.clipboard.writeText(`http://localhost:5173/tweet/${tweet.id}`)
+    setIsShared(true)
+  }
+
+  const handleLinkClick = () => {
+    navigate(`/tweet/${tweet.id}`, { state: { tweet } })
+  }
+
   return (
-    <Link
-      to={`/tweet/${tweet.id}`}
+    <div
+      onClick={handleLinkClick}
       className='border-b border-zinc-800 cursor-pointer p-3 pb-0 border-l border-r flex flex-col items-start gap-2'
     >
       {retweetUsers.length > 0 && (
@@ -244,7 +271,10 @@ function TweetComponent({ tweet, setTweets }: TweetProps) {
             {/* /Likes */}
 
             {/* Share */}
-            <button className='text-zinc-500 hover:text-blue p-2 rounded-full hover:bg-blue/10 active:bg-blue/20 transition-colors'>
+            <button
+              onClick={handleShare}
+              className='text-zinc-500 hover:text-blue p-2 rounded-full hover:bg-blue/10 active:bg-blue/20 transition-colors'
+            >
               <svg
                 viewBox='0 0 24 24'
                 fill='currentColor'
@@ -255,11 +285,13 @@ function TweetComponent({ tweet, setTweets }: TweetProps) {
                 </g>
               </svg>
             </button>
+
+            <ShareModal isOpen={isShared} setIsOpen={setIsShared} />
             {/* /Share */}
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
 

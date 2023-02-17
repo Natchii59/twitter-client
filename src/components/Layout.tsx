@@ -1,20 +1,16 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
+import { MdLogout } from 'react-icons/md'
+
 import { logOut, selectUser } from '../stores/authSlice'
 import Sidebar from './Sidebar'
-import { useState } from 'react'
 import { AppDispatch } from '../stores'
 
 function Layout() {
-  const user = useSelector(selectUser)
-  const dispatch = useDispatch<AppDispatch>()
   const navigate = useNavigate()
 
-  const [userMenuOpen, setUserMenuOpen] = useState<boolean>(false)
-
-  const handleUserMenu = () => {
-    setUserMenuOpen(!userMenuOpen)
-  }
+  const user = useSelector(selectUser)
+  const dispatch = useDispatch<AppDispatch>()
 
   const handleLogout = () => {
     dispatch(logOut())
@@ -50,17 +46,8 @@ function Layout() {
 
             {/* UserMenu */}
             <div className='xl:w-full mx-auto mt-auto'>
-              {userMenuOpen && (
-                <button
-                  onClick={handleLogout}
-                  className='py-2 px-4 border border-zinc-500 rounded-xl text-sm font-semibold w-full text-center mb-2'
-                >
-                  Se déconnecter
-                </button>
-              )}
-
               <button
-                onClick={handleUserMenu}
+                onClick={handleLogout}
                 className='flex justify-between items-center rounded-full hover:bg-gray-50/10 p-3 cursor-pointer transition-colors mb-2 w-full'
               >
                 <div className='flex'>
@@ -79,17 +66,7 @@ function Layout() {
                 </div>
 
                 <div className='hidden xl:block'>
-                  <div className='flex items-center h-full text-white'>
-                    <svg
-                      viewBox='0 0 24 24'
-                      fill='currentColor'
-                      className='h-4 w-4 mr-2'
-                    >
-                      <g>
-                        <path d='M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z'></path>
-                      </g>
-                    </svg>
-                  </div>
+                  <MdLogout className='w-4 h-4' />
                 </div>
               </button>
             </div>
