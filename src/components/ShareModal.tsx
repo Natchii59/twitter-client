@@ -12,7 +12,7 @@ function ShareModal({ isOpen, setIsOpen }: ShareModalProps) {
       onClose={() => setIsOpen(false)}
       className='relative z-50'
     >
-      <div className='fixed inset-0 bg-blue/30' aria-hidden='true' />
+      <div className='fixed inset-0 bg-zinc-300/20' aria-hidden='true' />
 
       <div className='fixed inset-0 flex items-center justify-center p-4'>
         <Dialog.Panel className='mx-auto max-w-md rounded-xl bg-black p-4'>
@@ -22,7 +22,7 @@ function ShareModal({ isOpen, setIsOpen }: ShareModalProps) {
 
           <button
             onClick={() => setIsOpen(false)}
-            className='bg-zinc-100 text-black rounded-full py-1 px-3'
+            className='bg-zinc-100 text-black rounded-full py-1.5 mt-2 w-full hover:bg-zinc-100/90 active:bg-zinc-100/80 transition-colors'
           >
             Fermer
           </button>

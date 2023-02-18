@@ -112,7 +112,7 @@ function Layout() {
               </h1>
 
               {/* Trending Topic */}
-              {[...Array(20)].map((_, i) => (
+              {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
                   className='p-3 hover:bg-gray-50/10 cursor-pointer transition-colors'

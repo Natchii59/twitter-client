@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import moment from 'moment'
 import debounce from 'lodash/debounce'
 
@@ -365,6 +365,13 @@ function SignUp() {
         >
           S'inscrire
         </button>
+
+        <p className='text-center text-sm mt-2'>
+          Vous avez déjà un compte ?{' '}
+          <Link to='/sign-in' className='text-blue hover:underline'>
+            Connectez-vous
+          </Link>
+        </p>
       </form>
     </AuthLayout>
   )

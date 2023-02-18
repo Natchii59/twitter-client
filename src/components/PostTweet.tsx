@@ -2,6 +2,7 @@ import { createRef, useEffect, useState } from 'react'
 import { useCreateTweetMutation } from '../stores/authApiSlice'
 import { ErrorMessage } from '../utils/types'
 import Spinner from './Spinner'
+import CircleLength from './CircleLength'
 
 interface PostTweetProps {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>
@@ -18,12 +19,13 @@ function PostTweet({ setRefresh }: PostTweetProps) {
 
   const updateTweet = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTweet(e.target.value)
+    setErrors(prev => prev.filter(err => err.code !== 'text'))
   }
 
   const submitHandle = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const { data, errors } = await createTweet({ text: tweet }).unwrap()
+    const { data, errors } = await createTweet({ text: tweet.trim() }).unwrap()
 
     if (errors) {
       if (errors[0].statusCode === 400) {
@@ -49,7 +51,7 @@ function PostTweet({ setRefresh }: PostTweetProps) {
       textAreaRef.current.style.height = `${textAreaHeight}px`
     }
 
-    if (tweet.trim().length > 0) {
+    if (tweet.trim().length > 0 && tweet.length <= 280) {
       setTweetValid(true)
     } else {
       setTweetValid(false)
@@ -58,27 +60,44 @@ function PostTweet({ setRefresh }: PostTweetProps) {
 
   return (
     <div className='border-b border-zinc-800 pb-2 border-l border-r'>
-      <div className='flex items-start p-4'>
+      <div className='flex items-start gap-2 p-4'>
         <img
           className='h-12 w-12 rounded-full'
           src='/default_pfp.jpeg'
           alt='Profile'
         />
 
-        <form className='flex-1 p-2' onSubmit={submitHandle}>
-          <textarea
-            ref={textAreaRef}
-            className={`text-white placeholder-zinc-500 text-xl w-full bg-transparent border-none focus:outline-none resize-none p-1 mb-2`}
-            placeholder='Quoi de neuf ?'
-            value={tweet}
-            onChange={updateTweet}
-          />
+        <form className='flex-1' onSubmit={submitHandle}>
+          <div className='mb-2'>
+            <textarea
+              ref={textAreaRef}
+              className={`text-white placeholder-zinc-500 text-xl rounded-lg w-full bg-transparent focus:outline-none resize-none p-1 ${
+                errors.find(err => err.code === 'text')
+                  ? 'border border-red-500'
+                  : 'border border-transparent'
+              }`}
+              placeholder='Quoi de neuf ?'
+              value={tweet}
+              onChange={updateTweet}
+              maxLength={280}
+            />
+
+            {!!errors.find(err => err.code === 'text') && (
+              <p id={`text-error`} className='text-xs text-red-500 font-medium'>
+                {errors.find(err => err.code === 'text')?.message}
+              </p>
+            )}
+          </div>
 
           <div className='flex w-full'>
             <div className='flex-1' />
 
             <div className='flex items-center gap-3'>
               {isLoading && <Spinner size={20} />}
+
+              {tweet.length > 0 && (
+                <CircleLength size={24} max={280} value={tweet.length} />
+              )}
 
               <button
                 type='submit'

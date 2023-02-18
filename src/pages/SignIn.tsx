@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import AuthLayout from '../components/AuthLayout'
 import { setUser } from '../stores/authSlice'
@@ -100,13 +100,20 @@ function SignIn() {
         </div>
 
         <button
-          className='w-full bg-blue rounded-full py-3 text-xl font-semibold mb-4 mt-8'
+          className='w-full bg-blue rounded-full py-3 text-xl font-semibold mb-2 mt-6'
           type='submit'
           aria-label='Sign in'
           disabled={isLoading}
         >
           Se connecter
         </button>
+
+        <p className='text-center text-sm mt-2'>
+          Vous n'avez pas de compte ?{' '}
+          <Link to='/sign-up' className='text-blue hover:underline'>
+            Inscrivez-vous
+          </Link>
+        </p>
       </form>
     </AuthLayout>
   )

@@ -1,9 +1,18 @@
 import { useSelector } from 'react-redux'
 import { Link, NavLink } from 'react-router-dom'
 import { selectUser } from '../stores/authSlice'
+import ComposeTweetModal from './ComposeTweetModal'
+import { useState } from 'react'
 
 function Sidebar() {
   const user = useSelector(selectUser)
+
+  const [isComposeTweetModalOpen, setIsComposeTweetModalOpen] =
+    useState<boolean>(false)
+
+  const handleComposeTweetModal = () => {
+    setIsComposeTweetModalOpen(true)
+  }
 
   return (
     <nav className='flex flex-col xl:items-start items-center gap-3 mt-2'>
@@ -75,8 +84,8 @@ function Sidebar() {
         <span className='hidden xl:block text-xl'>Plus</span>
       </NavLink>
 
-      <Link
-        to='/'
+      <button
+        onClick={handleComposeTweetModal}
         className='mx-auto w-11 h-11 xl:w-full flex items-center justify-center bg-blue hover:bg-blue/90 p-4 rounded-full text-white font-bold transition-colors mb-10'
       >
         <div className='flex'>
@@ -92,7 +101,12 @@ function Sidebar() {
         </div>
 
         <span className='hidden xl:block font-bold text-md'>Tweeter</span>
-      </Link>
+
+        <ComposeTweetModal
+          isOpen={isComposeTweetModalOpen}
+          setIsOpen={setIsComposeTweetModalOpen}
+        />
+      </button>
     </nav>
   )
 }
