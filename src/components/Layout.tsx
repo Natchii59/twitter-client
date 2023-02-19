@@ -117,7 +117,7 @@ function Layout() {
                   key={i}
                   className='p-3 hover:bg-gray-50/10 cursor-pointer transition-colors'
                 >
-                  <h2 className='font-bold text-md'>#FreePS5Monday</h2>
+                  <h2 className='font-bold text-md'>#JeSuisUnTweet</h2>
                   <p className='text-xs text-gray-400'>29.7K Tweets</p>
                 </div>
               ))}

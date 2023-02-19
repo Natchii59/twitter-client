@@ -11,6 +11,8 @@ import {
   LikeTweetOutput,
   LoginInput,
   LoginOutput,
+  ReplyTweetInput,
+  ReplyTweetOutput,
   RetweetTweetInput,
   RetweetTweetOutput,
   SignUpInput,
@@ -190,6 +192,23 @@ export const authApiSlice = apiSlice.injectEndpoints({
           variables: payload
         }
       })
+    }),
+    replyTweet: builder.mutation<ReplyTweetOutput, ReplyTweetInput>({
+      query: payload => ({
+        url: '',
+        body: {
+          query: `
+            mutation($input: ReplyTweetInput!) {
+              ReplyTweet(input: $input) {
+                id
+              }
+            }
+          `,
+          variables: {
+            input: payload
+          }
+        }
+      })
     })
   })
 })
@@ -202,5 +221,6 @@ export const {
   useLikeTweetMutation,
   useFollowUserMutation,
   useRetweetTweetMutation,
-  useDeleteTweetMutation
+  useDeleteTweetMutation,
+  useReplyTweetMutation
 } = authApiSlice

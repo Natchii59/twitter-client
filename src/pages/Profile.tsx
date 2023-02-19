@@ -2,8 +2,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useParams } from 'react-router-dom'
 import { selectUser, setUser as setUserStore } from '../stores/authSlice'
 import { useEffect, useState } from 'react'
-import { FindOneUserOutput, PaginationTweet, Tweet, User } from '../utils/types'
 import moment from 'moment'
+
+import { FindOneUserOutput, PaginationTweet, Tweet, User } from '../utils/types'
 import TweetComponent from '../components/Tweet'
 import Spinner from '../components/Spinner'
 import { useFollowUserMutation } from '../stores/authApiSlice'
@@ -12,124 +13,217 @@ import { AppDispatch } from '../stores'
 function Profile() {
   const { username } = useParams()
 
-  const [loading, setLoading] = useState<boolean>(false)
   const [user, setUser] = useState<User | null>(null)
   const [tweets, setTweets] = useState<Tweet[]>([])
   const [tweetsCount, setTweetsCount] = useState<number>(0)
 
-  const currentUser = useSelector(selectUser)
-  const dispatch = useDispatch<AppDispatch>()
-  const isCurrentUser = currentUser?.username === username
+  const [userLoading, setUserLoading] = useState<boolean>(false)
+  const [tweetsLoading, setTweetsLoading] = useState<boolean>(false)
+
+  const [refreshTweets, setTweetsRefresh] = useState<boolean>(false)
+  const [end, setEnd] = useState<boolean>(false)
+
+  const [skip, setSkip] = useState<number>(0)
+  const take = 20
+  const createdAt = new Date(Date.now())
 
   const [follow] = useFollowUserMutation()
+  const currentUser = useSelector(selectUser)
+  const dispatch = useDispatch<AppDispatch>()
+
+  const isCurrentUser = currentUser?.username === username
 
   useEffect(() => {
-    setLoading(true)
+    const userController = new AbortController()
 
-    if (!isCurrentUser) {
-      fetchUser()
-    } else {
-      setUser(currentUser)
-      fetchTweets()
+    const fetchUser = async () => {
+      if (userController.signal.aborted) return
+
+      setUserLoading(true)
+
+      try {
+        const result = await fetch(
+          `${import.meta.env.VITE_APP_API_URL}/graphql`,
+          {
+            signal: userController.signal,
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              query: `
+                query($input: FindOneUserInput!) {
+                  FindOneUser(input: $input) {
+                    id
+                    username
+                    name
+                    createdAt
+                    birthday
+                    followers {
+                      id
+                    }
+                    following {
+                      id
+                    }
+                  }
+                }
+              `,
+              variables: {
+                input: {
+                  username
+                }
+              }
+            })
+          }
+        )
+
+        const data: FindOneUserOutput = await result.json()
+
+        setUser(data.data.FindOneUser)
+      } catch (err: any) {
+        if (err.name === 'AbortError') return
+        console.error(err)
+      }
+
+      setUserLoading(false)
+    }
+
+    const init = async () => {
+      if (isCurrentUser) {
+        setUser(currentUser)
+      } else {
+        await fetchUser()
+      }
+
+      setTweetsRefresh(true)
+    }
+
+    init()
+
+    return () => {
+      userController.abort()
     }
   }, [username])
 
-  const fetchUser = () => {
-    fetch(`${import.meta.env.VITE_APP_API_URL}/graphql`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: `
-          query($input: FindOneUserInput!) {
-            FindOneUser(input: $input) {
-              id
-              username
-              name
-              createdAt
-              birthday
-              followers {
-                id
-              }
-              following {
-                id
-              }
-            }
-          }
-        `,
-        variables: {
-          input: {
-            username
-          }
-        }
-      })
-    })
-      .then(res => res.json())
-      .then((data: FindOneUserOutput) => {
-        setUser(data.data.FindOneUser)
-        fetchTweets()
-      })
-      .catch(err => {
-        console.error(err)
-        setLoading(false)
-      })
-  }
+  useEffect(() => {
+    const tweetsController = new AbortController()
 
-  const fetchTweets = () => {
-    fetch(`${import.meta.env.VITE_APP_API_URL}/graphql`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: `
-          query($skip: Int!, $take: Int!, $sortBy: PaginationSortBy, $where: PaginationTweetWhere) {
-            PaginationTweet(skip: $skip, take: $take, sortBy: $sortBy, where: $where) {
-              totalCount
-              nodes {
-                id
-                text
-                createdAt
-                likes {
-                  id
+    const fetchTweets = async () => {
+      if (tweetsController.signal.aborted) return
+
+      setTweetsLoading(true)
+
+      try {
+        const result = await fetch(
+          `${import.meta.env.VITE_APP_API_URL}/graphql`,
+          {
+            signal: tweetsController.signal,
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              query: `
+                query($skip: Int!, $take: Int!, $sortBy: PaginationSortBy, $where: PaginationTweetWhere) {
+                  PaginationTweet(skip: $skip, take: $take, sortBy: $sortBy, where: $where) {
+                    totalCount
+                    nodes {
+                      id
+                      text
+                      createdAt
+                      repliesCount
+                      replyTo {
+                        id
+                        user {
+                          id
+                          name
+                        }
+                      }
+                      likes {
+                        id
+                      }
+                      retweets {
+                        id
+                        username
+                      }
+                      user {
+                        id
+                        username
+                        name
+                      }
+                    }
+                  }
                 }
-                retweets {
-                  id
-                  username
-                }
-                user {
-                  id
-                  username
-                  name
+              `,
+              variables: {
+                skip,
+                take,
+                sortBy: {
+                  createdAt: 'DESC'
+                },
+                where: {
+                  username,
+                  createdAt
                 }
               }
-            }
+            })
           }
-        `,
-        variables: {
-          skip: 0,
-          take: 10,
-          where: {
-            username
-          },
-          sortBy: {
-            createdAt: 'DESC'
-          }
+        )
+
+        const { data }: PaginationTweet = await result.json()
+
+        if (skip === 0) setTweets(data.PaginationTweet.nodes)
+        else setTweets(prev => [...prev, ...data.PaginationTweet.nodes])
+
+        setTweetsCount(data.PaginationTweet.totalCount)
+
+        setSkip(prev => prev + take)
+
+        if (data.PaginationTweet.totalCount === tweets.length) {
+          setEnd(true)
         }
-      })
-    })
-      .then(res => res.json())
-      .then((data: PaginationTweet) => {
-        setTweetsCount(data.data.PaginationTweet.totalCount)
-        setTweets(data.data.PaginationTweet.nodes)
-        setLoading(false)
-      })
-      .catch(err => {
+      } catch (err: any) {
+        if (err.name === 'AbortError') return
         console.error(err)
-        setLoading(false)
-      })
-  }
+      }
+
+      setTweetsLoading(false)
+    }
+
+    const init = async () => {
+      if (user && refreshTweets) {
+        await fetchTweets()
+        setTweetsRefresh(false)
+      }
+    }
+
+    init()
+
+    return () => {
+      tweetsController.abort()
+    }
+  }, [user, refreshTweets])
+
+  useEffect(() => {
+    if (tweets.length === 0 || tweetsLoading || end) return
+
+    const handleScroll = () => {
+      const windowHeight = window.innerHeight
+      const documentHeight = document.documentElement.scrollHeight
+      const scrollTop = window.scrollY
+      const scrollBottom = scrollTop + windowHeight
+
+      if (scrollBottom >= documentHeight) {
+        setTweetsRefresh(true)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [tweets])
 
   const followHandle = async () => {
     if (!user || !currentUser) return
@@ -162,7 +256,7 @@ function Profile() {
     }
   }
 
-  if (loading)
+  if (userLoading)
     return (
       <div className='flex justify-center p-4'>
         <Spinner size={40} />
@@ -172,7 +266,7 @@ function Profile() {
   if (!user)
     return (
       <div className='flex justify-center p-4 text-xl font-bold'>
-        L'utilisateur est introuvable
+        L&apos;utilisateur est introuvable
       </div>
     )
 
@@ -300,6 +394,12 @@ function Profile() {
           <TweetComponent key={tweet.id} tweet={tweet} />
         ))}
       </div>
+
+      {tweetsLoading && (
+        <div className='flex items-center justify-center p-4 border-b border-l border-r border-zinc-800'>
+          <Spinner size={32} />
+        </div>
+      )}
     </>
   )
 }

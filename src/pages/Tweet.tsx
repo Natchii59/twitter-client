@@ -1,9 +1,9 @@
-import { createRef, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import moment from 'moment'
 
-import { FindOneTweetOutput, Tweet } from '../utils/types'
+import { FindOneTweetOutput, PaginationTweet, Tweet } from '../utils/types'
 import { selectUser } from '../stores/authSlice'
 import {
   useDeleteTweetMutation,
@@ -12,13 +12,15 @@ import {
 } from '../stores/authApiSlice'
 import Spinner from '../components/Spinner'
 import ShareModal from '../components/ShareModal'
+import TweetComponent from '../components/Tweet'
+import PostReply from '../components/PostReply'
 
 function TweetPage() {
   const { id } = useParams()
   const navigate = useNavigate()
 
-  const [loading, setLoading] = useState<boolean>(false)
   const [tweet, setTweet] = useState<Tweet | null>(null)
+  const [tweetLoading, setTweetLoading] = useState<boolean>(false)
 
   const [likes, setLikes] = useState<number>(0)
   const [isLiked, setIsLiked] = useState<boolean>(false)
@@ -29,78 +31,91 @@ function TweetPage() {
 
   const [isShared, setIsShared] = useState<boolean>(false)
 
+  const [replies, setReplies] = useState<Tweet[]>([])
+  const [repliesLoading, setRepliesLoading] = useState<boolean>(false)
+  const [refreshReplies, setRefreshReplies] = useState<boolean>(false)
+  const [end, setEnd] = useState<boolean>(false)
+
+  const [createdAt, setCreatedAt] = useState<Date>(new Date(Date.now()))
+  const [skip, setSkip] = useState<number>(0)
+  const take = 20
+
   const user = useSelector(selectUser)
 
   const [likeTweet] = useLikeTweetMutation()
   const [retweetTweet] = useRetweetTweetMutation()
   const [deleteTweet] = useDeleteTweetMutation()
 
-  const textAreaRef = createRef<HTMLTextAreaElement>()
-  const [comment, setComment] = useState<string>('')
-  const [commentValid, setCommentValid] = useState<boolean>(false)
-
-  const updateComment = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setComment(e.target.value)
-  }
-
   useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = '0'
+    const tweetController = new AbortController()
 
-      const textAreaHeight = textAreaRef.current.scrollHeight
-      textAreaRef.current.style.height = `${textAreaHeight}px`
-    }
+    const fetchTweet = async () => {
+      if (tweetController.signal.aborted) return
 
-    if (comment.trim().length > 0) {
-      setCommentValid(true)
-    } else {
-      setCommentValid(false)
-    }
-  }, [comment])
+      setTweetLoading(true)
 
-  useEffect(() => {
-    if (!user) return
-
-    setLoading(true)
-
-    fetch(`${import.meta.env.VITE_APP_API_URL}/graphql`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: `
-          query($id: ID!) {
-            FindOneTweet(id: $id) {
-              id
-              text
-              createdAt
-              likes {
-                id
-                username
+      try {
+        const result = await fetch(
+          `${import.meta.env.VITE_APP_API_URL}/graphql`,
+          {
+            signal: tweetController.signal,
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              query: `
+              query($id: ID!) {
+                FindOneTweet(id: $id) {
+                  id
+                  text
+                  createdAt
+                  replyTo {
+                    id
+                    text
+                    createdAt
+                    repliesCount
+                    user {
+                      id
+                      username
+                      name
+                    }
+                    likes {
+                      id
+                      username
+                    }
+                    retweets {
+                      id
+                      username
+                    }
+                  }
+                  likes {
+                    id
+                    username
+                  }
+                  retweets {
+                    id
+                    username
+                  }
+                  user {
+                    id
+                    username
+                    name
+                  }
+                }
               }
-              retweets {
+            `,
+              variables: {
                 id
-                username
               }
-              user {
-                id
-                username
-                name
-              }
-            }
+            })
           }
-        `,
-        variables: {
-          id
-        }
-      })
-    })
-      .then(res => res.json())
-      .then(({ data, errors }: FindOneTweetOutput) => {
+        )
+
+        const { data, errors }: FindOneTweetOutput = await result.json()
+
         if (errors) {
           console.error(errors)
-          setLoading(false)
           return
         }
 
@@ -111,24 +126,148 @@ function TweetPage() {
         setLikes(tweet.likes.length)
         setRetweets(tweet.retweets.length)
 
-        setIsLiked(!!tweet.likes.find(like => like.id === user.id))
-        setIsRetweeted(!!tweet.retweets.find(retweet => retweet.id === user.id))
+        setIsLiked(!!tweet.likes.find(like => like.id === user?.id))
+        setIsRetweeted(
+          !!tweet.retweets.find(retweet => retweet.id === user?.id)
+        )
         setRetweetUsers(
           tweet.retweets
-            .filter(retweet => user.following.find(u => u.id === retweet.id))
+            .filter(retweet => user?.following.find(u => u.id === retweet.id))
             .map(retweet => retweet.username)
         )
-
-        if (tweet.retweets.find(retweet => retweet.id === user.id))
-          setRetweetUsers(prev => [user.username, ...prev])
-
-        setLoading(false)
-      })
-      .catch(err => {
+      } catch (err: any) {
+        if (err.name === 'AbortError') return
         console.error(err)
-        setLoading(false)
-      })
-  }, [user, id])
+      }
+
+      setTweetLoading(false)
+    }
+
+    const init = async () => {
+      if (!user) return
+
+      await fetchTweet()
+      setRefreshReplies(true)
+    }
+
+    init()
+
+    return () => {
+      tweetController.abort()
+    }
+  }, [id, user])
+
+  useEffect(() => {
+    const repliesController = new AbortController()
+
+    const fetchReplies = async () => {
+      if (repliesController.signal.aborted) return
+
+      setRepliesLoading(true)
+
+      try {
+        const result = await fetch(
+          `${import.meta.env.VITE_APP_API_URL}/graphql`,
+          {
+            signal: repliesController.signal,
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              query: `
+                query($skip: Int!, $take: Int!, $where: PaginationTweetWhere, $sortBy: PaginationSortBy) {
+                  PaginationTweet(skip: $skip, take: $take, where: $where, sortBy: $sortBy) {
+                    totalCount
+                    nodes {
+                      id
+                      text
+                      createdAt
+                      repliesCount
+                      likes {
+                        id
+                        username
+                      }
+                      retweets {
+                        id
+                        username
+                      }
+                      user {
+                        id
+                        username
+                        name
+                      }
+                    }
+                  }
+                }
+              `,
+              variables: {
+                skip,
+                take,
+                where: {
+                  replyTo: tweet?.id,
+                  createdAt
+                },
+                sortBy: {
+                  createdAt: 'DESC'
+                }
+              }
+            })
+          }
+        )
+
+        const { data }: PaginationTweet = await result.json()
+
+        if (skip === 0) setReplies(data.PaginationTweet.nodes)
+        else setReplies(prev => [...prev, ...data.PaginationTweet.nodes])
+
+        setSkip(prev => prev + take)
+
+        if (data.PaginationTweet.totalCount === replies.length) {
+          setEnd(true)
+        }
+      } catch (err: any) {
+        if (err.name === 'AbortError') return
+        console.error(err)
+      }
+
+      setRepliesLoading(false)
+    }
+
+    const init = async () => {
+      if (tweet && refreshReplies) {
+        await fetchReplies()
+        setRefreshReplies(false)
+      }
+    }
+
+    init()
+
+    return () => {
+      repliesController.abort()
+    }
+  }, [tweet, refreshReplies])
+
+  useEffect(() => {
+    if (replies.length === 0 || repliesLoading || end) return
+
+    const handleScroll = () => {
+      const windowHeight = window.innerHeight
+      const documentHeight = document.documentElement.scrollHeight
+      const scrollTop = window.scrollY
+      const scrollBottom = scrollTop + windowHeight
+
+      if (scrollBottom >= documentHeight) {
+        setRefreshReplies(true)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [replies])
 
   const handleLike = async () => {
     if (!tweet) return
@@ -178,7 +317,7 @@ function TweetPage() {
     setIsShared(true)
   }
 
-  if (loading)
+  if (tweetLoading)
     return (
       <div className='flex justify-center p-4'>
         <Spinner size={40} />
@@ -211,6 +350,10 @@ function TweetPage() {
       {/* /Header */}
 
       <div className='border-b border-zinc-800 p-3 pb-2 border-l border-r flex flex-col items-start gap-2'>
+        {tweet.replyTo && (
+          <TweetComponent tweet={tweet.replyTo} isReplyTo={true} />
+        )}
+
         {retweetUsers.length > 0 && (
           <div className='flex items-center gap-2 text-sm text-zinc-500'>
             <svg
@@ -225,16 +368,11 @@ function TweetPage() {
 
             <span>
               {retweetUsers
-                .map(u => (u === user?.username ? 'Vous' : u))
                 .slice(0, 2)
                 .concat(retweetUsers.length > 2 ? 'et d’autres' : [])
                 .join(', ')}{' '}
-              {retweetUsers.length > 1
-                ? 'ont'
-                : retweetUsers[0] === user?.username
-                ? 'avez'
-                : 'a'}{' '}
-              retweeté{retweetUsers.length > 1 && 's'}
+              {retweetUsers.length > 1 ? 'ont' : 'a'} retweeté
+              {retweetUsers.length > 1 && 's'}
             </span>
           </div>
         )}
@@ -276,7 +414,7 @@ function TweetPage() {
           )}
         </div>
 
-        <p className='text-lg'>{tweet.text}</p>
+        <p className='text-lg break-all'>{tweet.text}</p>
 
         <p className='text-zinc-500 w-full border-b border-zinc-800 py-2'>
           {moment(tweet.createdAt).format('HH:mm · DD MMM YYYY')}
@@ -377,30 +515,23 @@ function TweetPage() {
           {/* /Share */}
         </div>
 
-        <form className='py-2 flex items-center gap-4 w-full'>
-          <img
-            className='w-12 h-12 rounded-full'
-            src='/default_pfp.jpeg'
-            alt='Profile'
-          />
-
-          <textarea
-            ref={textAreaRef}
-            className='text-white placeholder-zinc-500 text-xl h-8 bg-transparent border-none focus:outline-none resize-none p-1 flex-1'
-            placeholder='Tweetez votre réponse...'
-            value={comment}
-            onChange={updateComment}
-          />
-
-          <button
-            type='submit'
-            disabled={!commentValid}
-            className='bg-blue hover:bg-blue/90 active:bg-blue/80 disabled:opacity-50 disabled:hover:bg-blue disabled:active:bg-blue text-white rounded-full py-2 px-4 font-bold text-sm'
-          >
-            Tweeter
-          </button>
-        </form>
+        <PostReply
+          tweetId={tweet.id}
+          setRefresh={setRefreshReplies}
+          setCreatedAt={setCreatedAt}
+          setSkip={setSkip}
+        />
       </div>
+
+      {replies.map(reply => (
+        <TweetComponent key={reply.id} tweet={reply} setTweets={setReplies} />
+      ))}
+
+      {repliesLoading && (
+        <div className='flex items-center justify-center p-4 border-b border-l border-r border-zinc-800'>
+          <Spinner size={32} />
+        </div>
+      )}
     </>
   )
 }

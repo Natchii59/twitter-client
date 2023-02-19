@@ -1,4 +1,5 @@
 import { createRef, useEffect, useState } from 'react'
+
 import { useCreateTweetMutation } from '../stores/authApiSlice'
 import { ErrorMessage } from '../utils/types'
 import Spinner from './Spinner'
@@ -6,9 +7,11 @@ import CircleLength from './CircleLength'
 
 interface PostTweetProps {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>
+  setCreatedAt: React.Dispatch<React.SetStateAction<Date>>
+  setSkip: React.Dispatch<React.SetStateAction<number>>
 }
 
-function PostTweet({ setRefresh }: PostTweetProps) {
+function PostTweet({ setRefresh, setCreatedAt, setSkip }: PostTweetProps) {
   const [tweet, setTweet] = useState<string>('')
   const [tweetValid, setTweetValid] = useState<boolean>(false)
   const [errors, setErrors] = useState<ErrorMessage[]>([])
@@ -39,6 +42,8 @@ function PostTweet({ setRefresh }: PostTweetProps) {
     } else if (data) {
       setTweet('')
       setErrors([])
+      setSkip(0)
+      setCreatedAt(new Date(Date.now()))
       setRefresh(true)
     }
   }
@@ -101,7 +106,7 @@ function PostTweet({ setRefresh }: PostTweetProps) {
 
               <button
                 type='submit'
-                disabled={!tweetValid}
+                disabled={!tweetValid || isLoading}
                 className='bg-blue hover:bg-blue/90 active:bg-blue/80 disabled:opacity-50 disabled:hover:bg-blue disabled:active:bg-blue text-white rounded-full py-2 px-4 font-bold text-sm'
               >
                 Tweeter

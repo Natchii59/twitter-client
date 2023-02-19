@@ -28,6 +28,8 @@ export interface Tweet {
   user: User
   likes: User[]
   retweets: User[]
+  replyTo: Tweet | null
+  repliesCount: number
 }
 
 // Login
@@ -170,5 +172,18 @@ export interface FindOneTweetOutput {
   errors: ErrorOutput[] | null
   data: {
     FindOneTweet: Tweet
+  }
+}
+
+// Reply Tweet
+export interface ReplyTweetInput {
+  id: string
+  text: string
+}
+
+export interface ReplyTweetOutput {
+  errors: ErrorOutput[] | null
+  data: {
+    ReplyTweet: Tweet
   }
 }

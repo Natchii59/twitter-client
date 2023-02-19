@@ -11,10 +11,10 @@ import TweetPage from './pages/Tweet'
 function App() {
   return (
     <Routes>
-      <Route path='sign-in' element={<SignIn />} />
-      <Route path='sign-up' element={<SignUp />} />
-
       <Route path='/' element={<RequireAuth />}>
+        <Route path='sign-in' element={<SignIn />} />
+        <Route path='sign-up' element={<SignUp />} />
+
         <Route path='/' element={<Layout />}>
           <Route index element={<Home />} />
           <Route path='profile/:username' element={<Profile />} />

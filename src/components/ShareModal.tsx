@@ -17,7 +17,7 @@ function ShareModal({ isOpen, setIsOpen }: ShareModalProps) {
       <div className='fixed inset-0 flex items-center justify-center p-4'>
         <Dialog.Panel className='mx-auto max-w-md rounded-xl bg-black p-4'>
           <Dialog.Title className='text-xl font-bold mb-2'>
-            L'url du Tweet a été copié avec succès!
+            L&apos;url du Tweet a été copié avec succès!
           </Dialog.Title>
 
           <button

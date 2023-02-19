@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { useSelector } from 'react-redux'
-import { Link, NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
+
 import { selectUser } from '../stores/authSlice'
 import ComposeTweetModal from './ComposeTweetModal'
-import { useState } from 'react'
 
 function Sidebar() {
   const user = useSelector(selectUser)

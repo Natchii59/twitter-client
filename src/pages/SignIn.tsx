@@ -1,22 +1,24 @@
-import { useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 
 import AuthLayout from '../components/AuthLayout'
-import { setUser } from '../stores/authSlice'
+import { selectUser, setUser } from '../stores/authSlice'
 import { AppDispatch } from '../stores'
 import { useLoginMutation } from '../stores/authApiSlice'
 import InputForm from '../components/InputForm'
 import { ErrorMessage } from '../utils/types'
 
 function SignIn() {
+  const navigate = useNavigate()
+
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [errors, setErrors] = useState<ErrorMessage[]>([])
 
   const [login, { isLoading }] = useLoginMutation()
   const dispatch = useDispatch<AppDispatch>()
-  const navigate = useNavigate()
+  const currentUser = useSelector(selectUser)
 
   const updateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value)
@@ -27,6 +29,10 @@ function SignIn() {
     setPassword(e.target.value)
     setErrors(err => err.filter(e => e.code !== 'password'))
   }
+
+  useEffect(() => {
+    if (currentUser) navigate('/')
+  }, [currentUser])
 
   const submitHandle = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -109,7 +115,7 @@ function SignIn() {
         </button>
 
         <p className='text-center text-sm mt-2'>
-          Vous n'avez pas de compte ?{' '}
+          Vous n&apos;avez pas de compte ?{' '}
           <Link to='/sign-up' className='text-blue hover:underline'>
             Inscrivez-vous
           </Link>

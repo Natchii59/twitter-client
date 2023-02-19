@@ -1,8 +1,7 @@
 import { InputHTMLAttributes, useState } from 'react'
-import { AiOutlineLoading3Quarters } from 'react-icons/ai'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 import { ErrorMessage } from '../utils/types'
-import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 interface InputFormProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import moment from 'moment'
 import debounce from 'lodash/debounce'
@@ -10,9 +10,11 @@ import InputForm from '../components/InputForm'
 import SelectForm from '../components/SelectForm'
 import { ErrorMessage, FindOneUserOutput } from '../utils/types'
 import { useSignupMutation } from '../stores/authApiSlice'
-import { setUser } from '../stores/authSlice'
+import { selectUser, setUser } from '../stores/authSlice'
 
 function SignUp() {
+  const navigate = useNavigate()
+
   const actualYear = parseInt(moment().format('YYYY'))
 
   const [name, setName] = useState<string>('')
@@ -34,124 +36,133 @@ function SignUp() {
 
   const [signup, { isLoading }] = useSignupMutation()
   const dispatch = useDispatch<AppDispatch>()
-  const navigate = useNavigate()
+  const currentUser = useSelector(selectUser)
+
+  useEffect(() => {
+    if (currentUser) navigate('/')
+  }, [currentUser])
 
   const updateName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value)
     setErrors(err => err.filter(e => e.code !== 'names'))
   }
 
-  const updateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const updateEmail = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const emailTarget = e.target.value.toLowerCase()
     setEmail(emailTarget)
 
     if (e.target.validity.valid) {
-      checkEmail(emailTarget)
+      await checkEmail.current(emailTarget)
     }
   }
 
-  const checkEmail = debounce(async emailTarget => {
-    setLoadingEmail(true)
+  const checkEmail = useRef(
+    debounce(async emailTarget => {
+      setLoadingEmail(true)
 
-    if (fetchControllerEmail) fetchControllerEmail.abort()
+      if (fetchControllerEmail && fetchControllerEmail.signal.aborted)
+        fetchControllerEmail.abort()
 
-    const fetchControllerEmailTmp = new AbortController()
-    setFetchControllerEmail(fetchControllerEmailTmp)
+      const fetchControllerEmailTmp = new AbortController()
+      setFetchControllerEmail(fetchControllerEmailTmp)
 
-    const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/graphql`, {
-      signal: fetchControllerEmailTmp.signal,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: `
+      const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/graphql`, {
+        signal: fetchControllerEmailTmp.signal,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query: `
           query($input: FindOneUserInput!) {
             FindOneUser(input: $input) {
               id
             }
           }
         `,
-        variables: {
-          input: {
-            email: emailTarget
+          variables: {
+            input: {
+              email: emailTarget
+            }
           }
-        }
+        })
       })
-    })
 
-    const data = (await res.json()) as FindOneUserOutput
+      const data = (await res.json()) as FindOneUserOutput
 
-    setLoadingEmail(false)
+      setLoadingEmail(false)
 
-    if (data.data.FindOneUser) {
-      setErrors(err => [
-        ...err,
-        {
-          code: 'email',
-          message: 'Cette adresse mail est déjà utilisée'
-        }
-      ])
-    } else {
-      setErrors(err => err.filter(e => e.code !== 'email'))
-    }
-  }, 1000)
+      if (data.data.FindOneUser) {
+        setErrors(err => [
+          ...err,
+          {
+            code: 'email',
+            message: 'Cette adresse mail est déjà utilisée'
+          }
+        ])
+      } else {
+        setErrors(err => err.filter(e => e.code !== 'email'))
+      }
+    }, 1000)
+  )
 
-  const updateUsername = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const updateUsername = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const usernameTarget = e.target.value.toLowerCase()
     setUsername(usernameTarget)
 
     if (e.target.validity.valid) {
-      checkUsername(usernameTarget)
+      await checkUsername.current(usernameTarget)
     }
   }
 
-  const checkUsername = debounce(async usernameTarget => {
-    setLoadingUsername(true)
+  const checkUsername = useRef(
+    debounce(async usernameTarget => {
+      setLoadingUsername(true)
 
-    if (fetchControllerUsername) fetchControllerUsername.abort()
+      if (fetchControllerUsername) fetchControllerUsername.abort()
 
-    const fetchControllerUsernameTmp = new AbortController()
-    setFetchControllerUsername(fetchControllerUsernameTmp)
+      const fetchControllerUsernameTmp = new AbortController()
+      setFetchControllerUsername(fetchControllerUsernameTmp)
 
-    const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/graphql`, {
-      signal: fetchControllerUsernameTmp.signal,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: `
+      const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/graphql`, {
+        signal: fetchControllerUsernameTmp.signal,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query: `
           query($input: FindOneUserInput!) {
             FindOneUser(input: $input) {
               id
             }
           }
         `,
-        variables: {
-          input: {
-            username: usernameTarget
+          variables: {
+            input: {
+              username: usernameTarget
+            }
           }
-        }
+        })
       })
-    })
 
-    const data = (await res.json()) as FindOneUserOutput
+      const data = (await res.json()) as FindOneUserOutput
 
-    setLoadingUsername(false)
+      setLoadingUsername(false)
 
-    if (data.data.FindOneUser) {
-      setErrors(err => [
-        ...err,
-        {
-          code: 'username',
-          message: "Ce nom d'utilisateur est déjà utilisé"
-        }
-      ])
-    } else {
-      setErrors(err => err.filter(e => e.code !== 'username'))
-    }
-  }, 1000)
+      if (data.data.FindOneUser) {
+        setErrors(err => [
+          ...err,
+          {
+            code: 'username',
+            message: "Ce nom d'utilisateur est déjà utilisé"
+          }
+        ])
+      } else {
+        setErrors(err => err.filter(e => e.code !== 'username'))
+      }
+    }, 1000)
+  )
 
   const updatePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
     const passwordTarget = e.target.value.replaceAll(/\s/g, '')
@@ -363,7 +374,7 @@ function SignUp() {
           type='submit'
           className='w-full py-3 text-lg font-semibold bg-blue rounded-full mt-6 mb-2'
         >
-          S'inscrire
+          S&apos;inscrire
         </button>
 
         <p className='text-center text-sm mt-2'>
