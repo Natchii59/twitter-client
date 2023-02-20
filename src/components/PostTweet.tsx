@@ -7,11 +7,11 @@ import CircleLength from './CircleLength'
 
 interface PostTweetProps {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>
-  setCreatedAt: React.Dispatch<React.SetStateAction<Date>>
+  setWhere: React.Dispatch<React.SetStateAction<any[]>>
   setSkip: React.Dispatch<React.SetStateAction<number>>
 }
 
-function PostTweet({ setRefresh, setCreatedAt, setSkip }: PostTweetProps) {
+function PostTweet({ setRefresh, setWhere, setSkip }: PostTweetProps) {
   const [tweet, setTweet] = useState<string>('')
   const [tweetValid, setTweetValid] = useState<boolean>(false)
   const [errors, setErrors] = useState<ErrorMessage[]>([])
@@ -43,7 +43,9 @@ function PostTweet({ setRefresh, setCreatedAt, setSkip }: PostTweetProps) {
       setTweet('')
       setErrors([])
       setSkip(0)
-      setCreatedAt(new Date(Date.now()))
+      setWhere(prev =>
+        prev.map(w => ({ ...w, createdAt: new Date(Date.now()) }))
+      )
       setRefresh(true)
     }
   }

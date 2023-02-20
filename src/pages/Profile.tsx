@@ -124,7 +124,7 @@ function Profile() {
             },
             body: JSON.stringify({
               query: `
-                query($skip: Int!, $take: Int!, $sortBy: PaginationSortBy, $where: PaginationTweetWhere) {
+                query($skip: Int!, $take: Int!, $sortBy: PaginationSortBy, $where: [PaginationTweetWhere]) {
                   PaginationTweet(skip: $skip, take: $take, sortBy: $sortBy, where: $where) {
                     totalCount
                     nodes {
@@ -161,10 +161,20 @@ function Profile() {
                 sortBy: {
                   createdAt: 'DESC'
                 },
-                where: {
-                  username,
-                  createdAt
-                }
+                where: [
+                  {
+                    user: {
+                      username
+                    },
+                    createdAt
+                  },
+                  {
+                    retweetedBy: {
+                      username
+                    },
+                    createdAt
+                  }
+                ]
               }
             })
           }

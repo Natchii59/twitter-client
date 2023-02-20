@@ -176,7 +176,7 @@ function TweetPage() {
             },
             body: JSON.stringify({
               query: `
-                query($skip: Int!, $take: Int!, $where: PaginationTweetWhere, $sortBy: PaginationSortBy) {
+                query($skip: Int!, $take: Int!, $where: [PaginationTweetWhere], $sortBy: PaginationSortBy) {
                   PaginationTweet(skip: $skip, take: $take, where: $where, sortBy: $sortBy) {
                     totalCount
                     nodes {
@@ -204,10 +204,12 @@ function TweetPage() {
               variables: {
                 skip,
                 take,
-                where: {
-                  replyTo: tweet?.id,
-                  createdAt
-                },
+                where: [
+                  {
+                    replyTo: tweet?.id,
+                    createdAt
+                  }
+                ],
                 sortBy: {
                   createdAt: 'DESC'
                 }

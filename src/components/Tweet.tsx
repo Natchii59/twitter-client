@@ -72,7 +72,10 @@ function TweetComponent({
       location.pathname === `/profile/${username}` &&
       tweet.retweets.find(retweet => retweet.username === username) &&
       tweet.user.username !== username &&
-      username !== user.username
+      username !== user.username &&
+      !tweet.retweets.find(retweet =>
+        user.following.find(u => u.id === retweet.id)
+      )
     ) {
       setRetweetUsers(prev => [username, ...prev])
     }

@@ -4,16 +4,24 @@ import { PaginationTweet, Tweet } from '../utils/types'
 import TweetComponent from '../components/Tweet'
 import Spinner from '../components/Spinner'
 import PostTweet from '../components/PostTweet'
+import { useSelector } from 'react-redux'
+import { selectUser } from '../stores/authSlice'
 
 function Home() {
+  const [followingMode, setFollowingMode] = useState<boolean>(false)
+
   const [tweets, setTweets] = useState<Tweet[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [refresh, setRefresh] = useState<boolean>(true)
   const [end, setEnd] = useState<boolean>(false)
 
-  const [createdAt, setCreatedAt] = useState<Date>(new Date(Date.now()))
   const [skip, setSkip] = useState<number>(0)
+  const [where, setWhere] = useState<any[]>([
+    { createdAt: new Date(Date.now()) }
+  ])
   const take = 20
+
+  const user = useSelector(selectUser)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -32,7 +40,7 @@ function Home() {
             },
             body: JSON.stringify({
               query: `
-                query($skip: Int!, $take: Int!, $sortBy: PaginationSortBy, $where: PaginationTweetWhere) {
+                query($skip: Int!, $take: Int!, $sortBy: PaginationSortBy, $where: [PaginationTweetWhere]) {
                   PaginationTweet(skip: $skip, take: $take, sortBy: $sortBy, where: $where) {
                     totalCount
                     nodes {
@@ -69,9 +77,7 @@ function Home() {
                 sortBy: {
                   createdAt: 'DESC'
                 },
-                where: {
-                  createdAt
-                }
+                where
               }
             })
           }
@@ -109,6 +115,30 @@ function Home() {
   }, [refresh])
 
   useEffect(() => {
+    if (loading || !user) return
+
+    const date = new Date(Date.now())
+
+    if (followingMode) {
+      setWhere([
+        ...user.following.map(u => ({
+          user: { userId: u.id },
+          createdAt: date
+        })),
+        ...user.following.map(u => ({
+          retweetedBy: { userId: u.id },
+          createdAt: date
+        }))
+      ])
+    } else {
+      setWhere([{ createdAt: date }])
+    }
+
+    setSkip(0)
+    setRefresh(true)
+  }, [followingMode])
+
+  useEffect(() => {
     if (tweets.length === 0 || loading || end) return
 
     const handleScroll = () => {
@@ -132,17 +162,43 @@ function Home() {
   return (
     <>
       {/* Header */}
-      <div className='sticky top-0 z-40 w-full flex justify-between items-center px-4 py-3 border-x border-b border-zinc-800 backdrop-blur-md'>
+      <div className='sticky top-0 z-40 w-full flex flex-col items-start gap-4 px-4 py-3 pb-0 border-x border-b border-zinc-800 backdrop-blur-md'>
         {/* Title */}
         <h2 className='text-zinc-100 font-bold text-xl'>Accueil</h2>
         {/* /Title */}
+
+        <div className='flex items-center justify-around w-full font-semibold'>
+          <button
+            onClick={() => setFollowingMode(false)}
+            className={
+              followingMode ? 'pb-3 text-zinc-500 hover:text-zinc-100' : ''
+            }
+          >
+            <span>Tout</span>
+
+            {!followingMode && (
+              <div className='h-1 bg-blue mt-2 rounded-full' />
+            )}
+          </button>
+
+          <button
+            onClick={() => setFollowingMode(true)}
+            className={
+              !followingMode ? 'pb-3 text-zinc-500 hover:text-zinc-100' : ''
+            }
+          >
+            <span>Abonnements</span>
+
+            {followingMode && <div className='h-1 bg-blue mt-2 rounded-full' />}
+          </button>
+        </div>
       </div>
       {/* /Header */}
 
       {/* Post Tweet */}
       <PostTweet
         setRefresh={setRefresh}
-        setCreatedAt={setCreatedAt}
+        setWhere={setWhere}
         setSkip={setSkip}
       />
       {/* /Post Tweet */}
